@@ -1,16 +1,18 @@
 import 'reflect-metadata';
-export const createParamDecorator = (key: String) => {
-    //target控制器原型 propertyKey 方法名handleRequest  parameterIndex 先走1再走0
+export const createParamDecorator = (key: string) => {
+    // target: Controller类的原型对象  
+    // propertyKey：参数所属的方法的名称  
+    // parameterIndex: 参数在参数列表中的索引
     return () => (target: any, propertyKey: string, parameterIndex: number) => {   
-        //给控制器类的原型的propertyKey也就是handleRequest方法属性上添加元数据
-        //属性名是params:handleRequest 值是一个数组，数组里应该放置数据，表示哪个位置使用啊个装饰器
+        // 因为通过装饰器修饰的参数可能会有多个，一个个保存
         const existingParameters = Reflect.getMetadata(`params`,target,propertyKey)||[];
-        existingParameters.push({parameterIndex,key});
-        //existingParameters[parameterIndex]=key;
-        //[{ parameterIndex: 1, key: 'Request' },{ parameterIndex: 0, key: 'Req' }]
-        console.log('existingParameters',existingParameters)
-        Reflect.defineMetadata(`params`,existingParameters,target,propertyKey);
+        existingParameters.unshift({ parameterIndex, key });
+        
+        // 将解析后的参数数组放到Controller类的方法上。从这个方法就能拿到数据。
+        Reflect.defineMetadata(`params`, existingParameters, target, propertyKey);
     }
 }
 export const Request = createParamDecorator('Request');
 export const Req = createParamDecorator('Req');
+export const Aaa = createParamDecorator('Aaa');
+export const Bbb = createParamDecorator('Bbb');

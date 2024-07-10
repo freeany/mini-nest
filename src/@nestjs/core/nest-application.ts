@@ -34,7 +34,12 @@ export class NestApplication {
                 const routePath = path.posix.join('/', prefix, pathMetadata)
                 //配置路由，当客户端以httpMethod方法请求routePath路径的时候，会由对应的函数进行处理
                 this.app[httpMethod.toLowerCase()](routePath, (req: ExpressRequest, res: ExpressResponse, next: NextFunction) => {
-                    const result = method.call(controller, req, res, next);
+                    // const result = method.call(controller, req, res, next);
+                    const args = this.resolveParams(controller, methodName, req, res, next);
+                    // console.log(args,'argsargs');
+                    
+                    //执行路由处理函数，获取返回值
+                    const result = method.call(controller, ...args);
                     res.send(result);
                 })
                 Logger.log(`Mapped {${routePath}, ${httpMethod}} route`, 'RoutesResolver');
@@ -42,6 +47,23 @@ export class NestApplication {
 
         }
         Logger.log(`Nest application successfully started`, 'NestApplication');
+    }
+    private resolveParams(instance: any, methodName: string, req: ExpressRequest, res: ExpressResponse, next: NextFunction) {
+        //获取参数的元数据
+        const paramsMetaData = Reflect.getMetadata(`params`, instance, methodName) ?? [];
+        //[{ parameterIndex: 0, key: 'Req' },{ parameterIndex: 1, key: 'Request' }]
+        //此处就是把元数据变成实际的参数
+        return paramsMetaData.map((paramMetaData) => {
+            const { key } = paramMetaData;
+            switch (key) {
+                case "Request":
+                case "Req":
+                    return req;
+                default:
+                    return null;
+            }
+        })
+        //[req,req]
     }
     //启动HTTP服务器
     async listen(port) {
