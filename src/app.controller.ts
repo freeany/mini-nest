@@ -1,4 +1,4 @@
-import { Controller, Get, Request, Req, Res } from '@nestjs/common'
+import { Controller, Get, Request, Req, Res, Session } from '@nestjs/common'
 
 
 @Controller()
@@ -8,9 +8,22 @@ export class AppController {
     index(){
         return 'hello'
     }
-    @Get('info')
-    main(@Req() req, aa: string, @Req() req1, @Res() res) {
-        res.send('hello1111')
+    @Get('res')
+    main(@Res() res) {
+        res.send('res decorator.... ')
         return 'info'
+    }
+
+    @Get('session')
+    // @Session('pageView') pageView:string
+    sessionTest(@Session() session){
+        console.log('session',session);
+        // console.log('pageView',pageView);
+        if(session.pageView){
+            session.pageView++;
+        }else{
+            session.pageView=1;
+        }
+        return `pageView:${session.pageView}`;
     }
 };

@@ -16,5 +16,6 @@ export const Request = createParamDecorator('Request');
 export const Req = createParamDecorator('Req');
 export const Response = createParamDecorator('Response');
 export const Res = createParamDecorator('Res');
+export const Session = createParamDecorator('Session');
 export const Aaa = createParamDecorator('Aaa');
 export const Bbb = createParamDecorator('Bbb');

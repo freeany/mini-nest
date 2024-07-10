@@ -6,6 +6,9 @@ export class NestApplication {
     //在它的内部私用化一个Express实例
     private readonly app: Express = express()
     constructor(protected readonly module) { }
+    use(middleware) {
+        this.app.use(middleware);
+    }
     //配置初始化工作
     async init() {
         //取出模块里所有的控制器，然后做好路由配置
@@ -74,7 +77,9 @@ export class NestApplication {
                     return req;
                 case "Response":
                 case "Res":
-                        return res;
+                    return res;
+                case 'Session':
+                    return req.session;
                 default:
                     return null;
             }
