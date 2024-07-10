@@ -36,11 +36,17 @@ export class NestApplication {
                 this.app[httpMethod.toLowerCase()](routePath, (req: ExpressRequest, res: ExpressResponse, next: NextFunction) => {
                     // const result = method.call(controller, req, res, next);
                     const args = this.resolveParams(controller, methodName, req, res, next);
-                    // console.log(args,'argsargs');
                     
                     //执行路由处理函数，获取返回值
                     const result = method.call(controller, ...args);
-                    res.send(result);
+                     // 判断controller的methodName方法里有没有使用Response或Res参数装饰器，如果用了任何一个则不发响应
+                     const responseMetadata = this.getResponseMetadata(controller, methodName);
+                     // 如果没有注入Response参数装饰器，则nestjs内部响应
+                     if (!responseMetadata) {
+                         // 把返回值序列化发回给客户端
+                         res.send(result);
+                    } 
+                    // 如果有注入Response参数装饰器，则不发响应, 由用户自己处理返回响应
                 })
                 Logger.log(`Mapped {${routePath}, ${httpMethod}} route`, 'RoutesResolver');
             }
@@ -48,9 +54,16 @@ export class NestApplication {
         }
         Logger.log(`Nest application successfully started`, 'NestApplication');
     }
+    private getResponseMetadata(controller, methodName) {
+        const paramsMetaData = Reflect.getMetadata(`params`, controller, methodName) ?? [];
+        return paramsMetaData.filter(Boolean).find((param) =>
+            param.key === 'Response' || param.key === 'Res');
+    }
     private resolveParams(instance: any, methodName: string, req: ExpressRequest, res: ExpressResponse, next: NextFunction) {
         //获取参数的元数据
+        // 只有经过装饰器装饰的参数才会放到里面来(通过createParamDecorator创建的参数装饰器，那么没有被参数装饰器装饰的其他的参数怎么处理呢？)
         const paramsMetaData = Reflect.getMetadata(`params`, instance, methodName) ?? [];
+        
         //[{ parameterIndex: 0, key: 'Req' },{ parameterIndex: 1, key: 'Request' }]
         //此处就是把元数据变成实际的参数
         return paramsMetaData.map((paramMetaData) => {
@@ -59,6 +72,9 @@ export class NestApplication {
                 case "Request":
                 case "Req":
                     return req;
+                case "Response":
+                case "Res":
+                        return res;
                 default:
                     return null;
             }

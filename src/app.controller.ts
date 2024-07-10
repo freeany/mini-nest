@@ -1,4 +1,4 @@
-import { Controller, Get, Request, Req, Aaa, Bbb } from '@nestjs/common'
+import { Controller, Get, Request, Req, Res } from '@nestjs/common'
 
 
 @Controller()
@@ -9,8 +9,8 @@ export class AppController {
         return 'hello'
     }
     @Get('info')
-    main(@Request() req1, @Req() req2, @Aaa() aaa, @Bbb() bbb){
-        console.log(req1,'req11111111111111');
+    main(@Req() req, aa: string, @Req() req1, @Res() res) {
+        res.send('hello1111')
         return 'info'
     }
 };
