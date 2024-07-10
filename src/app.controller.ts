@@ -1,3 +1,4 @@
+import { Param } from '@nestjs/common';
 import { Controller, Get, Request, Req, Res, Session } from '@nestjs/common'
 
 
@@ -25,5 +26,11 @@ export class AppController {
             session.pageView=1;
         }
         return `pageView:${session.pageView}`;
+    }
+
+    
+    @Get(':id')
+    findOne(@Param() param, @Param('id') id): string {
+        return `This action returns a #${param.id} cat ${id}`;
     }
 };

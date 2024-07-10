@@ -70,7 +70,7 @@ export class NestApplication {
         //[{ parameterIndex: 0, key: 'Req' },{ parameterIndex: 1, key: 'Request' }]
         //此处就是把元数据变成实际的参数
         return paramsMetaData.map((paramMetaData) => {
-            const { key } = paramMetaData;
+            const { key, data } = paramMetaData;
             switch (key) {
                 case "Request":
                 case "Req":
@@ -80,6 +80,8 @@ export class NestApplication {
                     return res;
                 case 'Session':
                     return req.session;
+                case 'Param':
+                    return data ? req.params[data] : req.params;
                 default:
                     return null;
             }
