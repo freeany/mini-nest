@@ -54,6 +54,12 @@ export class AppController {
     getIpHost(@Ip() ip, @HostParam() host): string {
         return `This action returns a #${ip}--${host}`;
     }
+
+    @Get('passthrough')
+    passthroughHandle(@Res({passthrough: true}) res, @Headers('authorization') authorization): string {
+        console.log(res, 'res.....');
+        return `This action returns ${authorization}`
+    }
     
     @Get(':id')
     findOne(@Param() param, @Param('id') id): string {

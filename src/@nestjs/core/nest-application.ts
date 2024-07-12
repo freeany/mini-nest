@@ -49,7 +49,7 @@ export class NestApplication {
                      // 判断controller的methodName方法里有没有使用Response或Res参数装饰器，如果用了任何一个则不发响应
                      const responseMetadata = this.getResponseMetadata(controller, methodName);
                      // 如果没有注入Response参数装饰器，则nestjs内部响应
-                     if (!responseMetadata) {
+                     if (!responseMetadata || (responseMetadata?.data?.passthrough)) {
                          // 把返回值序列化发回给客户端
                          res.send(result);
                     } 
