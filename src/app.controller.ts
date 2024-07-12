@@ -1,4 +1,4 @@
-import { Controller, Get, Request, Req, Res, Session, Param, Post, Body } from '@nestjs/common'
+import { Controller, Get, Request, Req, Res, Session, Param, Post, Body, Query } from '@nestjs/common'
 
 class CreateCatDto {
     name: string;
@@ -37,11 +37,15 @@ export class AppController {
         console.log(user,'body');
         return "add user"
     }
+
+    @Get('query')
+    userQuery(@Query() query, @Query('name') name): string {
+        console.log(query);
+        return `This action returns a #${query.name}--${name}`;
+    }
     
     @Get(':id')
     findOne(@Param() param, @Param('id') id): string {
         return `This action returns a #${param.id} cat ${id}`;
     }
-    
-   
 };

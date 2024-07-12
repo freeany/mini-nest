@@ -88,6 +88,8 @@ export class NestApplication {
                     return data ? req.params[data] : req.params;
                 case 'Body':
                     return data ? req.body[data] : req.body;
+                case 'Query':
+                    return data ? req.query[data] : req.query;
                 default:
                     return null;
             }
