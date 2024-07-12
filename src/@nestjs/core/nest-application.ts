@@ -5,7 +5,11 @@ import path from 'path'
 export class NestApplication {
     //在它的内部私用化一个Express实例
     private readonly app: Express = express()
-    constructor(protected readonly module) { }
+    constructor(protected readonly module) {
+        this.app.use(express.json());//用来把JSON格式的请求体对象放在req.body上
+        this.app.use(express.urlencoded({ extended: true }));//把form表单格式的请求体对象放在req.body
+    }
+
     use(middleware) {
         this.app.use(middleware);
     }
@@ -82,6 +86,8 @@ export class NestApplication {
                     return req.session;
                 case 'Param':
                     return data ? req.params[data] : req.params;
+                case 'Body':
+                    return data ? req.body[data] : req.body;
                 default:
                     return null;
             }
