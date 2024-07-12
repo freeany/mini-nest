@@ -1,4 +1,4 @@
-import { Controller, Get, Request, Req, Res, Session, Param, Post, Body, Query } from '@nestjs/common'
+import { Controller, Get, Request, Req, Res, Session, Param, Post, Body, Query, Headers } from '@nestjs/common'
 
 class CreateCatDto {
     name: string;
@@ -42,6 +42,12 @@ export class AppController {
     userQuery(@Query() query, @Query('name') name): string {
         console.log(query);
         return `This action returns a #${query.name}--${name}`;
+    }
+
+    @Get('headers')
+    getHeaders(@Headers() headers, @Headers('authorization') authorization): string {
+        console.log(headers);
+        return `This action returns a #${headers.authorization}--${authorization}`;
     }
     
     @Get(':id')

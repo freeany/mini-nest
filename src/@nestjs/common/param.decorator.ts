@@ -20,5 +20,6 @@ export const Session = createParamDecorator('Session');
 export const Param = createParamDecorator('Param');
 export const Body = createParamDecorator('Body');
 export const Query = createParamDecorator('Query');
+export const Headers = createParamDecorator('Headers');
 export const Aaa = createParamDecorator('Aaa');
 export const Bbb = createParamDecorator('Bbb');
