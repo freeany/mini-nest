@@ -92,6 +92,10 @@ export class NestApplication {
                     return data ? req.query[data] : req.query;
                 case "Headers":
                     return data ? req.headers[data] : req.headers;
+                case "Ip":
+                    return req.ip;
+                case "HostParam":
+                    return req.host;
                 default:
                     return null;
             }

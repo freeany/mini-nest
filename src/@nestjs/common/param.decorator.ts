@@ -21,5 +21,7 @@ export const Param = createParamDecorator('Param');
 export const Body = createParamDecorator('Body');
 export const Query = createParamDecorator('Query');
 export const Headers = createParamDecorator('Headers');
+export const Ip = createParamDecorator('Ip');
+export const HostParam = createParamDecorator('HostParam');
 export const Aaa = createParamDecorator('Aaa');
 export const Bbb = createParamDecorator('Bbb');
