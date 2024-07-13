@@ -1,4 +1,5 @@
 import { Controller, Get, Request, Req, Res, Session, Param, Post, Body, Query, Headers,  HostParam, Ip, Next, HttpCode, Header, Redirect } from '@nestjs/common'
+import { UserRole } from './decorator/role.decorator';
 
 class CreateCatDto {
     name: string;
@@ -88,6 +89,22 @@ export class AppController {
     @Redirect('https://www.baidu.com', 302)
     redirectExample() {
         // 这里不需要返回任何内容
+    }
+
+    @Post('user-role')
+    createSomething(@UserRole('admin') hasRole: string) { 
+        console.log('hasRole',hasRole,'hasRole');
+        
+        if (!hasRole) {
+            return {
+                code: 401,
+                message: '没有权限',
+            }
+        }
+        return {
+            code: 200,
+            message: '有权限',
+        }
     }
     
     @Get(':id')

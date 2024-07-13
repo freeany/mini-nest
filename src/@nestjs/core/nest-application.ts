@@ -93,7 +93,16 @@ export class NestApplication {
         //[{ parameterIndex: 0, key: 'Req' },{ parameterIndex: 1, key: 'Request' }]
         //此处就是把元数据变成实际的参数
         return paramsMetaData.map((paramMetaData) => {
-            const { key, data } = paramMetaData;
+            const { key, data, factory } = paramMetaData;//{passthrough:true}
+            // 将ctx作为参数传出去，然后就可以在自定义参数装饰器中使用了
+            // 为啥要定义一个swithToHttp属性，是因为nestjs不仅支持http还支持graphql、webscoket、微服务
+            const ctx = { 
+                switchToHttp: () => ({
+                    getRequest: () => req,
+                    getResponse: () => req,
+                    getNext: () => next,
+                })
+            }
             switch (key) {
                 case "Request":
                 case "Req":
@@ -117,6 +126,8 @@ export class NestApplication {
                     return req.host;
                 case "Next":
                     return next;
+                case "DecoratorFactory":
+                    return factory(data,ctx);
                 default:
                     return null;
             }

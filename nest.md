@@ -906,27 +906,97 @@ redirectExample() {
 
 ## 实现自定义参数装饰器
 
+nestjs暴露了`createParamDecorator`方法让用户自己定义参数装饰器，参数装饰器的回调函数中可以获取到req、res，next对象。
+
+自定义参数装饰器可以处理一些与业务强相关的重复逻辑，将其封装为自定义装饰器，这样就不用重复的编写这些通用逻辑代码了。
+
+例如，需要创建一个自定义参数装饰器用于权限的验证：
+
+当post请求传递的数据的role属性是admin时，则有权限操作，否则没权限操作。
+
+```ts
+@Post('user-role')
+createSomething(@UserRole('admin') hasRole: string) { 
+    console.log('hasRole',hasRole,'hasRole');
+
+    if (!hasRole) {
+        return {
+            code: 401,
+            message: '没有权限',
+        }
+    }
+    return {
+        code: 200,
+        message: '有权限',
+    }
+}
+```
+
+客户端传过来的role属性是admin时，可以有权限进行操作
+
+![image-20240713221547393](https://gitee.com/freeanyli/picture/raw/master/image-20240713221547393.png)
+
+当客户端传过来的role属性是不是admin时，无权限操作。
+
+![image-20240713221626681](https://gitee.com/freeanyli/picture/raw/master/image-20240713221626681.png)
 
 
 
+修改param.decorator.ts中的`createParamDecorator`方法,  自定义装饰器`createParamDecorator`需要传递一个函数。在函数中写我们装饰器的处理逻辑。
+
+![image-20240713221840486](https://gitee.com/freeanyli/picture/raw/master/image-20240713221840486.png)
+
+如果是自定义装饰器的key就是自定义的`DecoratorFactory`
+
+```ts
+ if(keyOrFactory instanceof Function){
+      //如果传过来的是一个函数的话，存放参数索引，key定死为装饰器工厂，factory就是用来获取值的工厂
+      existingParameters[parameterIndex]={parameterIndex,key:'DecoratorFactory',factory:keyOrFactory,data};
+  }else{
+      existingParameters[parameterIndex]={parameterIndex,key:keyOrFactory,data};
+  }
+```
 
 
 
+在处理参数装饰器逻辑时，现在获取到的数据多了一个`factory`。
+
+![image-20240713222929952](https://gitee.com/freeanyli/picture/raw/master/image-20240713222929952.png)
+
+将ctx作为参数传出去，然后就可以在自定义参数装饰器中使用了。为啥要定义一个swithToHttp属性，是因为nestjs不仅支持http还支持graphql、webscoket、微服务。
+
+```ts
+const { key, data, factory } = paramMetaData;//{passthrough:true}
+
+const ctx = { 
+    switchToHttp: () => ({
+        getRequest: () => req,
+        getResponse: () => req,
+        getNext: () => next,
+    })
+}
+```
+
+当处理的过程中发现是自定义装饰器时，执行自定义装饰器中的回调函数, 返回回调函数的执行结果。
+
+![image-20240713223104321](https://gitee.com/freeanyli/picture/raw/master/image-20240713223104321.png)
+
+在`role.decorator.ts`文件中创建自定义装饰器，作用是判断请求参数中的role属性如果是admin则有权限，否则没权限。
+
+```ts
+import { createParamDecorator } from '@nestjs/common';
+
+export const UserRole = createParamDecorator((data, ctx) => {
+  const request = ctx.switchToHttp().getRequest();
+  return request.body.role === data; 
+});
+```
 
 
 
+在app.controller.ts中进行验证
 
-
-
-
-
-
-
-
-
-
-
-
+![image-20240713223359882](https://gitee.com/freeanyli/picture/raw/master/image-20240713223359882.png)
 
 
 
