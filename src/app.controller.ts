@@ -1,4 +1,4 @@
-import { Controller, Get, Request, Req, Res, Session, Param, Post, Body, Query, Headers,  HostParam, Ip } from '@nestjs/common'
+import { Controller, Get, Request, Req, Res, Session, Param, Post, Body, Query, Headers,  HostParam, Ip, Next } from '@nestjs/common'
 
 class CreateCatDto {
     name: string;
@@ -59,6 +59,17 @@ export class AppController {
     passthroughHandle(@Res({passthrough: true}) res, @Headers('authorization') authorization): string {
         console.log(res, 'res.....');
         return `This action returns ${authorization}`
+    }
+
+    @Get('next')
+    nextHandle1(@Next() next) {
+        console.log(1111);
+        next()
+    }
+
+    @Get('next')
+    nextHandle2(): string {
+        return `nextHandle2 next`
     }
     
     @Get(':id')

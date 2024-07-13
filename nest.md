@@ -706,6 +706,75 @@ getIpHost(@Ip() ip, @HostParam() host): string {
 
 ## 实现@Next参数装饰器
 
+Next参数装饰器主要作用是可以控制请求流程，可以管理处理顺序及其逻辑。next装饰器与中间件是不一样的，不是一个概念，next装饰器中next会让请求路径去执行下一个处理程序（这个下一个就是控制器中的也可以匹配到该路径的路由处理函数）。如果next没有被调用，则请求就会被挂起。
+
+express已经实现了next的处理逻辑
+
+```js
+let express=require('express')
+let app=new express()
+app.use('/test',function(req,res,next){
+    console.log('aaa')
+    next()
+  })
+  app.use('/',function(req,res,next){
+    console.log('bbb')
+    next()
+  })
+  app.use('/',function(req,res,next){
+    console.log('ccc')
+    next()
+  })
+  app.use('/',function(req,res,next){
+    console.log('ddd')
+    res.send('hello world');
+  })
+app.listen(9999,function(){
+    console.log('running.....')
+})
+```
+
+访问/test, 打印结果如下：
+
+![image-20240713091253455](https://gitee.com/freeanyli/picture/raw/master/image-20240713091253455.png)
+
+我们在nestjs中实现@Next参数装饰器就很简单了
+
+在param.decorator.ts中新增Next参数装饰器
+
+![image-20240713091526636](https://gitee.com/freeanyli/picture/raw/master/image-20240713091526636.png)
+
+nest-application.ts中新增Next分支
+
+![image-20240713091607808](https://gitee.com/freeanyli/picture/raw/master/image-20240713091607808.png)
+
+在getResponseMetadata函数中要加入这么一条逻辑，如果是next装饰器，则nest装饰器不会自动处理返回结果
+
+![image-20240713091758914](https://gitee.com/freeanyli/picture/raw/master/image-20240713091758914.png)
+
+
+
+在app.controller.ts中测试使用装饰器
+
+![image-20240713092023962](https://gitee.com/freeanyli/picture/raw/master/image-20240713092023962.png)
+
+```ts
+ @Get('next')
+nextHandle1(@Next() next) {
+    console.log(1111);
+    next()
+}
+
+@Get('next')
+nextHandle2(): string {
+    return `nextHandle2 next`
+}
+```
+
+响应结果：
+
+![image-20240713092119050](https://gitee.com/freeanyli/picture/raw/master/image-20240713092119050.png)
+
 
 
 现在我们就实现了nestjs官网上列出的所有参数装饰器，并能正常运行。
@@ -731,6 +800,10 @@ getIpHost(@Ip() ip, @HostParam() host): string {
 
 
 ## 实现@HttpCode方法装饰器
+
+在 Nestjs 里，`@HttpCode`装饰器可以更改返回的 HTTP 状态码。 而且nestjs中Post请求的默认响应状态码为 201， 其他的响应状态码默认为200。
+
+
 
 
 

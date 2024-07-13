@@ -64,7 +64,7 @@ export class NestApplication {
     private getResponseMetadata(controller, methodName) {
         const paramsMetaData = Reflect.getMetadata(`params`, controller, methodName) ?? [];
         return paramsMetaData.filter(Boolean).find((param) =>
-            param.key === 'Response' || param.key === 'Res');
+            param.key === 'Response' || param.key === 'Res' || param.key === 'Next');
     }
     private resolveParams(instance: any, methodName: string, req: ExpressRequest, res: ExpressResponse, next: NextFunction) {
         //获取参数的元数据
@@ -96,6 +96,8 @@ export class NestApplication {
                     return req.ip;
                 case "HostParam":
                     return req.host;
+                case "Next":
+                    return next;
                 default:
                     return null;
             }
