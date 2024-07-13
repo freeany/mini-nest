@@ -34,6 +34,8 @@ export class NestApplication {
                 //取得此函数上绑定的方法名的元数据
                 const httpMethod = Reflect.getMetadata('method', method);//GET
                 const statusCode = Reflect.getMetadata('statusCode', method);
+                const headers = Reflect.getMetadata('headers', method)??[];
+
                 //取得此函数上绑定的路径的元数据
                 const pathMetadata = Reflect.getMetadata('path', method);
                 //如果方法名不存在，则不处理
@@ -58,8 +60,11 @@ export class NestApplication {
                      const responseMetadata = this.getResponseMetadata(controller, methodName);
                      // 如果没有注入Response参数装饰器，则nestjs内部响应
                      if (!responseMetadata || (responseMetadata?.data?.passthrough)) {
-                         // 把返回值序列化发回给客户端
-                         res.send(result);
+                            headers.forEach(({ name, value }) => {
+                                res.setHeader(name, value);
+                            });
+                            // 把返回值序列化发回给客户端
+                            res.send(result);
                     } 
                     // 如果有注入Response参数装饰器，则不发响应, 由用户自己处理返回响应
                 })

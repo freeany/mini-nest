@@ -825,11 +825,56 @@ nest-application.ts中获取装饰器定义的参数
 
 ## 实现@Header方法装饰器
 
+在 Nestjs 里，`@Header`装饰器可以自定义响应头。通过使用`@Header`装饰器，可以设置返回给客户端的响应头字段和值。`@Header`装饰器在业务场景中主要是用来设置特定响应头，像设置缓存策略、指定内容类型等。在方法上就可以灵活的控制返回给客户端的响应头内容。
 
+在http.decorator.ts中新增Next参数装饰器
+
+![image-20240713094528746](https://gitee.com/freeanyli/picture/raw/master/image-20240713094528746.png)
+
+nest-application.ts中获取装饰器定义的参数
+
+![image-20240713095123461](https://gitee.com/freeanyli/picture/raw/master/image-20240713095123461.png)
+
+再返回之前设置请求头header
+
+![image-20240713095207932](https://gitee.com/freeanyli/picture/raw/master/image-20240713095207932.png)
+
+在app.controller.ts中测试使用装饰器
+
+![image-20240713095235337](https://gitee.com/freeanyli/picture/raw/master/image-20240713095235337.png)
+
+```ts
+@Get('header')
+@Header('Content-Type', 'application/xml') 
+getXmlData(): string {
+    return '<data>Some XML data here</data>';
+}
+```
+
+
+
+响应结果：
+
+![image-20240713095053591](https://gitee.com/freeanyli/picture/raw/master/image-20240713095053591.png)
+
+
+
+> 如果你使用@Res参数装饰器，那么 @HttpCode()和@Header()装饰器将会失去作用。
 
 
 
 ## 实现@Redirect方法装饰器
+
+​	在 Nestjs 里，`@Redirect` 装饰器可以实现重定向功能。如果使用了@Redirect装饰器，那么客户端会根据@Redirect指示的路径进行重定向，并返回302状态码标识是一个重定向的响应。@Redirect可以接收两个参数，第一个是要重定向的url路径，第二个是重定向的状态码。默认302表示临时重定向， 也可以用301表示永久重定向。
+
+
+
+我们啥时候要用到重定向呢？一般情况下有这两种业务场景：
+
+- 当资源的位置发生变化时，将旧的 URL 重定向到新的位置。
+- 根据某些条件或用户的操作，将用户引导到不同的页面。
+
+
 
 
 

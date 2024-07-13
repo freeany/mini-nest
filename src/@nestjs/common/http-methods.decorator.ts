@@ -38,3 +38,11 @@ export function HttpCode(statusCode:number=200):MethodDecorator{
     Reflect.defineMetadata('statusCode',statusCode,descriptor.value);
   }
 }
+
+export function Header(name:string,value:string):MethodDecorator{
+  return (target:any,propertyKey:string,descriptor:PropertyDescriptor)=>{
+    const existingHeaders = Reflect.getMetadata(`headers`,descriptor.value)??[];
+    existingHeaders.push({name,value});
+    Reflect.defineMetadata('headers',existingHeaders,descriptor.value);
+  }
+}

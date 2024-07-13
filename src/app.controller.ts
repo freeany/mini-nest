@@ -1,4 +1,4 @@
-import { Controller, Get, Request, Req, Res, Session, Param, Post, Body, Query, Headers,  HostParam, Ip, Next, HttpCode } from '@nestjs/common'
+import { Controller, Get, Request, Req, Res, Session, Param, Post, Body, Query, Headers,  HostParam, Ip, Next, HttpCode, Header } from '@nestjs/common'
 
 class CreateCatDto {
     name: string;
@@ -76,6 +76,12 @@ export class AppController {
     @HttpCode(200)
     create(): string {
         return 'This action adds a new cat';
+    }
+
+    @Get('header')
+    @Header('Content-Type', 'application/xml') 
+    getXmlData(): string {
+        return '<data>Some XML data here</data>';
     }
     
     @Get(':id')
