@@ -35,6 +35,8 @@ export class NestApplication {
                 const httpMethod = Reflect.getMetadata('method', method);//GET
                 const statusCode = Reflect.getMetadata('statusCode', method);
                 const headers = Reflect.getMetadata('headers', method)??[];
+                const redirectUrl = Reflect.getMetadata('redirectUrl', method);
+                const redirectStatusCode = Reflect.getMetadata('redirectStatusCode', method);
 
                 //取得此函数上绑定的路径的元数据
                 const pathMetadata = Reflect.getMetadata('path', method);
@@ -49,6 +51,10 @@ export class NestApplication {
                     
                     //执行路由处理函数，获取返回值
                     const result = method.call(controller, ...args);
+
+                    if (redirectUrl) {
+                        return res.redirect(redirectStatusCode || 302, redirectUrl);
+                    }
                     if (statusCode) {
                         res.statusCode = statusCode;
                     } else if (httpMethod === 'POST') {

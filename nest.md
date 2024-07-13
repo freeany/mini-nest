@@ -874,13 +874,37 @@ getXmlData(): string {
 - 当资源的位置发生变化时，将旧的 URL 重定向到新的位置。
 - 根据某些条件或用户的操作，将用户引导到不同的页面。
 
+在http.decorator.ts中新增@Redirect方法装饰器
+
+![image-20240713100441161](https://gitee.com/freeanyli/picture/raw/master/image-20240713100441161.png)
+
+nest-application.ts中获取装饰器定义的参数
+
+![image-20240713100505280](https://gitee.com/freeanyli/picture/raw/master/image-20240713100505280.png)
+
+如果指定了Redirect那么就直接重定向
+
+![image-20240713100556553](https://gitee.com/freeanyli/picture/raw/master/image-20240713100556553.png)
+
+在app.controller.ts中测试使用装饰器
+
+![image-20240713100626054](https://gitee.com/freeanyli/picture/raw/master/image-20240713100626054.png)
 
 
 
+```ts
+@Get('old-path')
+@Redirect('https://www.baidu.com', 302)
+redirectExample() {
+    // 这里不需要返回任何内容
+}
+```
 
-## 实现自定义装饰器
+浏览器访问： `http://localhost:3000/old-path`
 
-User
+![image-20240713100747865](https://gitee.com/freeanyli/picture/raw/master/image-20240713100747865.png)
+
+## 实现自定义参数装饰器
 
 
 

@@ -1,4 +1,4 @@
-import { Controller, Get, Request, Req, Res, Session, Param, Post, Body, Query, Headers,  HostParam, Ip, Next, HttpCode, Header } from '@nestjs/common'
+import { Controller, Get, Request, Req, Res, Session, Param, Post, Body, Query, Headers,  HostParam, Ip, Next, HttpCode, Header, Redirect } from '@nestjs/common'
 
 class CreateCatDto {
     name: string;
@@ -82,6 +82,12 @@ export class AppController {
     @Header('Content-Type', 'application/xml') 
     getXmlData(): string {
         return '<data>Some XML data here</data>';
+    }
+
+    @Get('old-path')
+    @Redirect('https://www.baidu.com', 302)
+    redirectExample() {
+        // 这里不需要返回任何内容
     }
     
     @Get(':id')

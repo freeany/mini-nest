@@ -46,3 +46,10 @@ export function Header(name:string,value:string):MethodDecorator{
     Reflect.defineMetadata('headers',existingHeaders,descriptor.value);
   }
 }
+
+export function Redirect(url:string='/',statusCode:number=302):MethodDecorator{
+  return (target:any,propertyKey:string,descriptor:PropertyDescriptor)=>{
+    Reflect.defineMetadata('redirectUrl',url,descriptor.value);
+    Reflect.defineMetadata('redirectStatusCode',statusCode,descriptor.value);
+  }
+}
