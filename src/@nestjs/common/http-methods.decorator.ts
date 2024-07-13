@@ -32,3 +32,9 @@ export function Post(path:string=''):MethodDecorator{
     //descriptor.value.method = 'GET'
   }
 }
+
+export function HttpCode(statusCode:number=200):MethodDecorator{
+  return (target:any,propertyKey:string,descriptor:PropertyDescriptor)=>{
+    Reflect.defineMetadata('statusCode',statusCode,descriptor.value);
+  }
+}

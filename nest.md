@@ -773,7 +773,7 @@ nextHandle2(): string {
 
 响应结果：
 
-![image-20240713092119050](https://gitee.com/freeanyli/picture/raw/master/image-20240713092119050.png)
+![image-20240713092523592](https://gitee.com/freeanyli/picture/raw/master/image-20240713092523592.png)
 
 
 
@@ -803,13 +803,29 @@ nextHandle2(): string {
 
 在 Nestjs 里，`@HttpCode`装饰器可以更改返回的 HTTP 状态码。 而且nestjs中Post请求的默认响应状态码为 201， 其他的响应状态码默认为200。
 
+在http.decorator.ts中新增Next参数装饰器
 
+![image-20240713093037821](https://gitee.com/freeanyli/picture/raw/master/image-20240713093037821.png)
 
+nest-application.ts中获取装饰器定义的参数
 
+![image-20240713093104986](https://gitee.com/freeanyli/picture/raw/master/image-20240713093104986.png)
+
+再返回之前判断返回指定状态码（如果是post默认201）
+
+![image-20240713093124219](https://gitee.com/freeanyli/picture/raw/master/image-20240713093124219.png)
+
+在app.controller.ts中测试使用装饰器
+
+![image-20240713094100855](https://gitee.com/freeanyli/picture/raw/master/image-20240713094100855.png)
+
+响应结果：
+
+![image-20240713094124721](https://gitee.com/freeanyli/picture/raw/master/image-20240713094124721.png)
 
 ## 实现@Header方法装饰器
 
-response.setHeader
+
 
 
 

@@ -33,6 +33,7 @@ export class NestApplication {
                 const method = controllerPrototype[methodName];
                 //取得此函数上绑定的方法名的元数据
                 const httpMethod = Reflect.getMetadata('method', method);//GET
+                const statusCode = Reflect.getMetadata('statusCode', method);
                 //取得此函数上绑定的路径的元数据
                 const pathMetadata = Reflect.getMetadata('path', method);
                 //如果方法名不存在，则不处理
@@ -46,6 +47,13 @@ export class NestApplication {
                     
                     //执行路由处理函数，获取返回值
                     const result = method.call(controller, ...args);
+                    if (statusCode) {
+                        res.statusCode = statusCode;
+                    } else if (httpMethod === 'POST') {
+                        // 默认post 返回 201状态码
+                        res.statusCode = 201;
+                    }
+
                      // 判断controller的methodName方法里有没有使用Response或Res参数装饰器，如果用了任何一个则不发响应
                      const responseMetadata = this.getResponseMetadata(controller, methodName);
                      // 如果没有注入Response参数装饰器，则nestjs内部响应
