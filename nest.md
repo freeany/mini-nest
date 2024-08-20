@@ -75,6 +75,21 @@ Controller并不能直接挂载到nest的app应用程序上，它是挂载到`Mo
 
 挂载多个路由器(controller)
 
+`app.controller.ts`
+
+```ts
+import { Controller, Get } from '@nestjs/common'
+
+@Controller('/app') // 如果不传默认/
+export class AppController {
+    //使用Get装饰器标记index方法为HTTP GET路由处理程序
+    @Get()
+    index(){
+        return 'hello'
+    }
+};
+```
+
 `app.module.ts`
 
 ```ts
@@ -145,7 +160,7 @@ export function Controller(prefixOrOptions?: string | ControllerOptions): ClassD
 }
 ```
 
-## 实现Get装饰器
+## 实现@Get装饰器
 
 appController类中的每个方法都可以作为一个个路由，不同的路由可以执行不同的操作，作不同的处理。但是前提是要标识是get请求还是post请求，还是其他类型的请求，这里简单实现下get请求的装饰器。
 
@@ -175,7 +190,7 @@ export function Get(path:string=''):MethodDecorator{
 
 现在`Module`装饰器定义好了，`Controller`装饰器也定义好了，都分别用到了Module类和Controller类上，现在在类的元数据上分别有了传入的controllers和每个controller对应的prefix。现在可以注册路由了。
 
-在`NestApplication`类初始化的时候**取出模块里所有的控制器，然后做好路由配置**。
+在`NestApplication`类初始化的时候**取出module模块里所有的控制器，然后做好路由配置**。
 
 1. 在传入的module中取出传入的controllers，这里就用到了元数据
 
@@ -218,6 +233,8 @@ for (const methodName of Object.getOwnPropertyNames(controllerPrototype)) {
 ```
 
 - `path.posix`拼出来一个url路径，能处理很多边界情况。
+  - `path.posix.join` 与 `path.join` 类似，但强制使用 POSIX 风格（即 `/` 分隔符），适用于需要跨平台但保持路径风格统一的场景。
+
 - `this.app`是`express`实例。
 
 ​	` private readonly app: Express = express()`。
@@ -229,6 +246,8 @@ for (const methodName of Object.getOwnPropertyNames(controllerPrototype)) {
 ## 总结
 
 GitHub：https://github.com/freeany/mini-nest/commit/e7e700a2d4fbc74c35fdd9e7435b9ddfcc73eda5
+
+
 
 
 
@@ -379,7 +398,11 @@ export class AppController {
 
 现在参数就能一一对应起来了。
 
-## 实现 @Res装饰器
+
+
+
+
+## 实现 @Res参数装饰器注解
 
 在方法处理器中如果注入了@Res装饰器时，那么这个路由的响应就需要使用者手动来返回响应，手动使用res.json(...) 或 res.send(...)来返回响应，如果使用者没有手动返回响应，那么HTTP服务器会被挂起。
 
@@ -420,7 +443,7 @@ private getResponseMetadata(controller, methodName) {
 
 
 
-## 实现@Session装饰器
+## 实现@Session参数装饰器注解
 
 在`param.decorator.ts`中创建Session装饰器
 
@@ -464,7 +487,7 @@ use(middleware) {
 
 
 
-## 实现@Param装饰器
+## 实现@Param参数装饰器注解
 
 ​	客户端请求的url一般都是静态，但是如果需要接收动态数据作为请求的一部分时，可以使用带参数的路由。
 
@@ -516,7 +539,7 @@ export const Param = createParamDecorator('Param');
 
 ![image-20240710182559965](https://gitee.com/freeanyli/pic2forcompany/raw/master/images/image-20240710182559965.png)
 
-## 实现@Body装饰器
+## 实现@Body参数装饰器注解
 
 @Body装饰器的作用是在Post请求中获取到请求的参数然后将参数转为JavaScript对象，nestjs使用了DTO(Data Transfer Object)架构，DTO定义客户端请求过来的载荷的类型，建议使用类来创建DTO对象，因为TypeScript 接口在转译过程中被删除，无法在运行时引用它们，但是类是 JavaScript ES6 标准的一部分，编译后的 JavaScript还会再代码中被保存。而且使用类定义DTO，方便后续对类中字段设置默认值，进行校验，加密操作，或者过滤掉某些字段这些非常常用的功能。
 
@@ -599,7 +622,7 @@ addUser(@Body() user: CreateCatDto): any {
 
 
 
-## 实现@Query装饰器
+## 实现@Query参数装饰器注解
 
 @Query参数可以用来获取 GET 请求中的查询参数，也就是方便的获取 URL 中 `?` 后面的参数。
 
@@ -639,7 +662,7 @@ userQuery(@Query() query, @Query('name') name): string {
 
 
 
-## 实现@Headers装饰器
+## 实现@Headers参数装饰器注解
 
 @Headers装饰器可以获取请求头中的特定字段或所有请求头数据，并将其作为方法的参数进行处理。
 
@@ -673,7 +696,7 @@ getHeaders(@Headers() headers, @Headers('authorization') authorization): string 
 
 
 
-## 实现@Ip和@HostParam装饰器
+## 实现@Ip和@HostParam参数装饰器注解
 
 @Ip和@HostParam装饰器分别是i获取请求ip和请求主机，这些数据在req对象中都可以获取到，但是nestjs帮我们提供了这两个开箱即用的装饰器，下面来看看如何实现。
 
@@ -704,7 +727,7 @@ getIpHost(@Ip() ip, @HostParam() host): string {
 
 
 
-## 实现@Next参数装饰器
+## 实现@Next参数装饰器注解
 
 Next参数装饰器主要作用是可以控制请求流程，可以管理处理顺序及其逻辑。next装饰器与中间件是不一样的，不是一个概念，next装饰器中next会让请求路径去执行下一个处理程序（这个下一个就是控制器中的也可以匹配到该路径的路由处理函数）。如果next没有被调用，则请求就会被挂起。
 
@@ -799,7 +822,33 @@ nextHandle2(): string {
 
 
 
-## 实现@HttpCode方法装饰器
+
+
+## 实现@Post方法装饰器注解
+
+@Post注解和@Get注解的实现基本是一样的。
+
+```ts
+export function Post(path:string=''):MethodDecorator{
+  /**
+   * target 类原型 AppController.prototype
+   * propertyKey方法键名 index
+   * descriptor index方法的属性描述器
+   */
+  return (target:any,propertyKey:string,descriptor:PropertyDescriptor)=>{
+    //给descriptor.value，也就是index函数添加元数据，path=path
+    Reflect.defineMetadata('path', path, descriptor.value);
+    //descriptor.value.path = path;
+    //给descriptor.value，也就是index函数添加元数据，method=GET
+    Reflect.defineMetadata('method', 'POST', descriptor.value);
+    //descriptor.value.method = 'GET'
+  }
+}
+```
+
+
+
+## 实现@HttpCode方法装饰器注解
 
 在 Nestjs 里，`@HttpCode`装饰器可以更改返回的 HTTP 状态码。 而且nestjs中Post请求的默认响应状态码为 201， 其他的响应状态码默认为200。
 
@@ -823,7 +872,7 @@ nest-application.ts中获取装饰器定义的参数
 
 ![image-20240713094124721](https://gitee.com/freeanyli/picture/raw/master/image-20240713094124721.png)
 
-## 实现@Header方法装饰器
+## 实现@Header方法装饰器注解
 
 在 Nestjs 里，`@Header`装饰器可以自定义响应头。通过使用`@Header`装饰器，可以设置返回给客户端的响应头字段和值。`@Header`装饰器在业务场景中主要是用来设置特定响应头，像设置缓存策略、指定内容类型等。在方法上就可以灵活的控制返回给客户端的响应头内容。
 
@@ -863,7 +912,7 @@ getXmlData(): string {
 
 
 
-## 实现@Redirect方法装饰器
+## 实现@Redirect方法装饰器注解
 
 ​	在 Nestjs 里，`@Redirect` 装饰器可以实现重定向功能。如果使用了@Redirect装饰器，那么客户端会根据@Redirect指示的路径进行重定向，并返回302状态码标识是一个重定向的响应。@Redirect可以接收两个参数，第一个是要重定向的url路径，第二个是重定向的状态码。默认302表示临时重定向， 也可以用301表示永久重定向。
 
@@ -904,7 +953,7 @@ redirectExample() {
 
 ![image-20240713100747865](https://gitee.com/freeanyli/picture/raw/master/image-20240713100747865.png)
 
-## 实现自定义参数装饰器
+## 实现(自定义)参数装饰器注解
 
 nestjs暴露了`createParamDecorator`方法让用户自己定义参数装饰器，参数装饰器的回调函数中可以获取到req、res，next对象。
 
@@ -912,7 +961,7 @@ nestjs暴露了`createParamDecorator`方法让用户自己定义参数装饰器�
 
 例如，需要创建一个自定义参数装饰器用于权限的验证：
 
-当post请求传递的数据的role属性是admin时，则有权限操作，否则没权限操作。
+实现：当post请求传递的数据的role属性是admin时，则有权限操作，否则没权限操作。
 
 ```ts
 @Post('user-role')
@@ -992,15 +1041,17 @@ export const UserRole = createParamDecorator((data, ctx) => {
 });
 ```
 
-
-
 在app.controller.ts中进行验证
 
 ![image-20240713223359882](https://gitee.com/freeanyli/picture/raw/master/image-20240713223359882.png)
 
 
 
+![image-20240820144107572](https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/214065e1df164cf29f65777509a9c661~tplv-73owjymdk6-jj-mark-v1:0:0:0:0:5o6Y6YeR5oqA5pyv56S-5Yy6IEAgeGlubGluZ19hbnk=:q75.awebp?policy=eyJ2bSI6MywidWlkIjoiMzc1NTU4NzQ1Mzg0ODUzNiJ9&rk3s=e9ecf3d6&x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&x-orig-expires=1724222537&x-orig-sign=SzDesiCd%2Fb9gHQzOEGzsM8DkTTw%3D)
 
+换个参数试试: 
+
+![image-20240820144150884](https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/58353ee91d2c4f1fa811aad3db94bd89~tplv-73owjymdk6-jj-mark-v1:0:0:0:0:5o6Y6YeR5oqA5pyv56S-5Yy6IEAgeGlubGluZ19hbnk=:q75.awebp?policy=eyJ2bSI6MywidWlkIjoiMzc1NTU4NzQ1Mzg0ODUzNiJ9&rk3s=e9ecf3d6&x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&x-orig-expires=1724222577&x-orig-sign=JZZAlp5lAHMIczA%2BbS7VSoMoI9I%3D)
 
 # 《深入理解装饰器》
 

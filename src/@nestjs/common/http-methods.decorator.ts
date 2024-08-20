@@ -25,10 +25,10 @@ export function Post(path:string=''):MethodDecorator{
    */
   return (target:any,propertyKey:string,descriptor:PropertyDescriptor)=>{
     //给descriptor.value，也就是index函数添加元数据，path=path
-    Reflect.defineMetadata('path',path,descriptor.value);
+    Reflect.defineMetadata('path', path, descriptor.value);
     //descriptor.value.path = path;
     //给descriptor.value，也就是index函数添加元数据，method=GET
-    Reflect.defineMetadata('method','POST',descriptor.value);
+    Reflect.defineMetadata('method', 'POST', descriptor.value);
     //descriptor.value.method = 'GET'
   }
 }
