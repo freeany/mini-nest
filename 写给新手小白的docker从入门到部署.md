@@ -633,7 +633,195 @@ docker会为每个容器分配一个唯一ip，容器A访问容器B，使用容�
 
 
 
+# 最佳实践
+
+docker容器运行时需要考虑到下面几点
+
+网络、存储、环境变量
+
+1. 容器需不需要暴露端口给外界访问
+
+   - -p 端口映射
+   - --network 加入自定义网络
+
+2. 容器有没有配置文件需要挂载到宿主机修改/有没有数据需要挂载到宿主机进行持久化
+
+   - 目录挂载
+
+   - 卷映射
+   - 数据目录怎么挂载需要参照docker hub来进行编写
+
+3. 容器启动时需不需要传入环境变量做初始配置
+
+   - 参照docker hub来进行编写
+4. 需要安装哪个版本
+
+   - tag
+
+   
+
+根据上面我们来启动一个mysql容器
+
+首先要通过docker hub找到mysql
+
+![image-20240822211717499](https://gitee.com/freeanyli/picture/raw/master/image-20240822211717499.png)
+
+然后阅读overview。
+
+1. mysql容器需要映射，映射端口为3306
+
+   > -p 3306:3306 
+
+2. mysql容器需要配置文件/数据挂载到宿主机
+
+   > -v /app/myconf:/etc/mysql/conf.d \
+   >
+   >  -v /app/mydata:/var/lib/mysql \
+
+3. mysql启动时要传入环境变量
+
+   > -e MYSQL_ROOT_PASSWORD=123456 \
+
+4. 需要安装哪个版本
+
+   ![image-20240822213704839](https://gitee.com/freeanyli/picture/raw/master/image-20240822213704839.png)
+
+   在tag标签中可以找到版本，这里安装5.7.40
+
+   > mysql:5.7.40
+
+   通过以上的逻辑梳理，现在写成了一条完整的容器运行命令
+
+   ```bash
+   docker run -d -p 3306:3306 \
+   > -v /app/myconf:/etc/mysql/conf.d \
+   > -v /app/mydata:/var/lib/mysql \
+   > -e MYSQL_ROOT_PASSWORD=123456 \
+   > mysql:5.7.40
+   ```
+
+   通过docker ps -a查看，容器运行成功
+
+   ![image-20240822212544767](https://gitee.com/freeanyli/picture/raw/master/image-20240822212544767.png)
+
+通过docker最佳实践可以帮我们清晰的启动一个容器，这也是快速熟悉docker的方法，可以把熟悉的镜像下载下载，然后用最佳实践来启动容器。
+
+![image-20240822214216311](https://gitee.com/freeanyli/picture/raw/master/image-20240822214216311.png)
+
 # Docker Compose
+
+> 批量管理容器 （定义和运行多容器的工具）
+
+把要启动的容器都写到compose.yaml文件中，使用docker compose命令将文件中指定的所有容器全部批量的启动或停用。
+
+![image-20240822214737311](https://gitee.com/freeanyli/picture/raw/master/image-20240822214737311.png)
+
+上线是第一次启动
+
+启动是指停用了，然后重新启动起来。
+
+当我们在部署应用的时候，要安装很多容器，容器安装的命令比较繁琐而且容易出错，直接编写composeyaml文件，直接把要启动的所有文件一次性都放到yaml文件中写好，在宿主机中使用compose命令一键启动，就算要迁移机器，只要把文件交给对方，对方也可以使用docker compose 一键启动。
+
+
+
+## compose.yaml的编写
+
+compose.yaml文件就是将我们编写的复杂且容易写错的docker run 命令通过compose规范写成一份yaml配置文件。
+
+![image-20240822223246507](https://gitee.com/freeanyli/picture/raw/master/image-20240822223246507.png)
+
+命令式安装
+
+```bash
+#创建网络
+docker network create blog
+
+#启动mysql
+docker run -d -p 3306:3306 \
+-e MYSQL_ROOT_PASSWORD=123456 \
+-e MYSQL_DATABASE=wordpress \
+-v mysql-data:/var/lib/mysql \
+-v /app/myconf:/etc/mysql/conf.d \
+--restart always --name mysql \ # 开机自动重启
+--network blog \
+mysql:8.0
+
+#启动wordpress
+docker run -d -p 8080:80 \
+-e WORDPRESS_DB_HOST=mysql \
+-e WORDPRESS_DB_USER=root \
+-e WORDPRESS_DB_PASSWORD=123456 \
+-e WORDPRESS_DB_NAME=wordpress \
+-v wordpress:/var/www/html \
+--restart always --name wordpress-app \
+--network blog \
+wordpress:latest
+```
+
+将命令式安装转换成compose.yaml文件
+
+```bash
+name: myblog
+services:
+  mysql: # 应用名 其实就是容器名
+    container_name: mysql # 对应-- name 容器名(优先级更高)
+    image: mysql:8.0			# 对应镜像
+    ports:
+      - "3306:3306" # 端口
+    environment: # 环境变量数组的写法
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_DATABASE=wordpress
+    volumes: # 卷映射和目录挂载
+      - mysql-data:/var/lib/mysql
+      - /app/myconf:/etc/mysql/conf.d
+    restart: always # 开机自启
+    networks:
+      - blog
+
+  wordpress:
+    image: wordpress
+    ports:
+      - "8080:80"
+    environment: # 环境变量kv的写法
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: 123456
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - wordpress:/var/www/html
+    restart: always
+    networks:
+      - blog
+    depends_on: # 决定了启动顺序， 依赖谁
+      - mysql
+
+# 使用卷映射需要声明一下，在这里可以配置卷的详细信息
+volumes:
+  mysql-data:
+  wordpress:
+
+# 使用了需要声明一下，在这里可以配置网络的详细信息
+networks:
+  blog:
+```
+
+使用docker compose指定yaml一键运行多容器
+
+docker compose -f compose.yaml up -d
+
+-f compose.yaml可以不写，默认就是compose.yaml。
+
+
+
+当修改了yaml文件时，使用docker compose -f compose.yaml up -d重新执行yaml文件，docker会进行增量更新。
+
+- 修改 Docker Compose 文件。重新启动应用。只会触发修改项的重新启动。
+
+down命令
+
+- 默认就算down了容器，所有挂载的卷不会被移除。比较安全
+
+
 
 # Dockerfile
 
