@@ -335,9 +335,43 @@ exit 退出容器。
 
 
 
-### 删除所有容器
+## 容器操作: 删除所有容器
 
 使用`docker ps -aq` 可以获取到所有容器的id，然后通过`docker rm $(docker ps -aq)`可以删除所有容器。
+
+
+
+## 容器操作： Docker commit
+
+改变过的容器可以通过docker commit 创建一个新的镜像，也就是说commit命令可以将整个容器以及它的所有变化打包成一个新的镜像。
+
+```bash
+docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
+```
+
+
+
+## 容器操作：Docker save
+
+将一个或多个 Docker 镜像保存到一个 tar 文件中，方便可以在其他环境中使用。
+
+```bash
+docker save [OPTIONS] IMAGE [IMAGE...]
+```
+
+
+
+## 容器操作： Docker load
+
+`docker load` 命令可以加载在 `docker save` 命令生成的 tar 文件， 而tar文件中保存了 Docker 镜像。它可以将tar中的镜像和所有层加载到 Docker 中，这样就可以在新环境中使用了。
+
+```bash
+docker load [OPTIONS]
+
+# OPTIONS 说明：
+    # -i, --input: 指定输入文件的路径。
+    #-q, --quiet: 安静模式，减少输出信息。
+```
 
 
 
@@ -346,6 +380,62 @@ exit 退出容器。
 启动一个nginx，并将它的首页改为自己的页面，发布出去，让所有人都使用。
 
 ![image-20240821101412763](https://gitee.com/freeanyli/pic2forcompany/raw/master/images/202408221859035.png)
+
+1. 下载镜像
+
+![image-20240824104823253](https://gitee.com/freeanyli/pic2forcompany/raw/master/images/202408241048333.png)
+
+2. 启动容器
+
+![image-20240824104846876](https://gitee.com/freeanyli/pic2forcompany/raw/master/images/202408241048950.png)
+
+3. 进入到容器内部
+
+![image-20240824104921875](https://gitee.com/freeanyli/pic2forcompany/raw/master/images/202408241049949.png)
+
+
+
+4. 进入到nginx内部的index.html页面，修改`index.html`，过会要把这个修改过的容器保存为一个新的镜像并发布出去
+
+   ![image-20240824105104286](https://gitee.com/freeanyli/pic2forcompany/raw/master/images/202408241051427.png)
+
+​	访问页面，发现已经修改了
+
+![image-20240824105208258](https://gitee.com/freeanyli/pic2forcompany/raw/master/images/202408241052321.png)
+
+5. 创建镜像
+
+使用`commit`命令创建一个新的镜像， 查看镜像列表，发现多了一个mynginx镜像，这就是我们刚刚创建的
+
+![image-20240824105918557](https://gitee.com/freeanyli/pic2forcompany/raw/master/images/202408241059722.png)
+
+
+
+6. 保存镜像
+
+使用save命令可以将镜像保存为一个tar包，可以方便其他人进行部署操作
+
+![image-20240824110433712](https://gitee.com/freeanyli/pic2forcompany/raw/master/images/202408241104814.png)
+
+7. 假设我们是一台新的环境机器，别人给了我们镜像tar包，我们去加载
+
+   - 先删除之前的容器和镜像
+
+     ![image-20240824111205808](https://gitee.com/freeanyli/pic2forcompany/raw/master/images/202408241112894.png)
+
+     ​				<img src="https://gitee.com/freeanyli/pic2forcompany/raw/master/images/202408241114567.png" style="zoom:50%;" />
+
+   - 加载镜像
+
+   ![image-20240824111514680](https://gitee.com/freeanyli/pic2forcompany/raw/master/images/202408241115790.png)
+
+8. 运行加载的镜像
+
+![image-20240824111728899](https://gitee.com/freeanyli/pic2forcompany/raw/master/images/202408241117062.png)
+
+9. 访问99端口，就是我们刚才修改过的容器
+
+![image-20240824111848865](https://gitee.com/freeanyli/pic2forcompany/raw/master/images/202408241118937.png)
 
 # Dokcer存储
 
